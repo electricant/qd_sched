@@ -11,7 +11,7 @@ int sched_put_task(void (*taskFunction)(void), unsigned long rate, bool run_imme
 {
   if (num_tasks == SCHED_NUM_TASKS)
     return -1; // no more room for another task
-    
+
   // For maximum scheduling accuracy, insert tasks in the order of increasing rate
   int i = num_tasks -1;
 
@@ -23,7 +23,7 @@ int sched_put_task(void (*taskFunction)(void), unsigned long rate, bool run_imme
     i--;
   }
   int task_id = i+1;
-  
+
   tasks[task_id].taskFunc = taskFunction;
   tasks[task_id].rateMillis = rate;
   tasks[task_id].lastRunMillis = run_immediately ? -1*rate : 0;
@@ -73,7 +73,7 @@ void loop()
   digitalWrite(LED_BUILTIN, HIGH);
 #endif
 
-  // idle loop (seep until there's stuff to do)
+  // idle loop (sleep until there's stuff to do)
   unsigned long sleep_ms = ULONG_MAX;
   for(size_t i = 0; i < num_tasks; i++)
   {
@@ -81,8 +81,10 @@ void loop()
     // Make sure to compute ms_to_task correctly in case a task ran for more than its rate
     unsigned long ms_to_task = (ms_delta < tasks[i].rateMillis) ? (tasks[i].rateMillis - ms_delta) : tasks[i].rateMillis;
 
-    if (ms_to_task < (sleep_ms - SLEEP_SLACK_MS))
-      sleep_ms = ms_to_task; 
+    // if the current ms_to_task is lower than the minimum and the difference is
+    // greater than the slack, update. Otherwise keep the previous sleep time
+    if ((ms_to_task < sleep_ms) && ((sleep_ms - ms_to_task) > SLEEP_SLACK_MS))
+      sleep_ms = ms_to_task;
   }
   delay(sleep_ms);
 }
