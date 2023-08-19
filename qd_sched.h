@@ -1,12 +1,12 @@
 /*
  * Quick and Dirty Scheduler for repetitive tasks
- * 
+ *
  * This is a cooperative multitasking arliest deadline first (EDF)scheduler.
  * As the name says, the scheduler is very basic: it keeps track of the last run time of each task and,
  * if current_millis - last_run_time is greater than or equal to the time interval between task runs,
  * then the selected task is run. If no task has to be run the it sleeps until the next iteration.
  * Therefore, each task function is executed periodically every rate milliseconds.
- * 
+ *
  * There is no priority support for tasks. For maximum timing accuracy, the tasks are ordered
  * (and therefore scanned to choose the next to run) by increasing rate.
  *
@@ -15,14 +15,14 @@
 #ifndef QD_SCHED_H
 #define QD_SCHED_H
 
-/* 
+/*
  * This scheduler sleeps when there are no tasks to run. The sleep time is the minimum that
  * guarantees that tasks are run correcty at their chosen rate. To reduce wakeups, tasks
  * can be delayed up to this ms amount to allow for longer sleep times by grouping them together
  */
 #define SLEEP_SLACK_MS 50
 
-/* 
+/*
  * SCHED_NUM_TASKS controls the maximum number of tasks that can be allocated.
  * If you try to allocate more than SCHED_NUM_TASKS your allocation will fail and the task will never be run.
  */
@@ -32,7 +32,7 @@
  * Enable or disable the usage of the builtin LED to signal that the scheduler is busy.
  * Warning: photosensitive epilepsy hazard
  */
-#define SCHED_USE_BLINKENLIGHT
+//#define SCHED_USE_BLINKENLIGHT
 
 #include <Arduino.h>
 #include <climits>
@@ -47,12 +47,12 @@ typedef struct task_t task_t;
 
 /*
  * Put a task in the scheduler.
- * 
+ *
  * Parameters:
  *  taskFunction    - pointer to a function to be run
  *  rate            - rate in ms for the task to run
  *  run_immediately - run the task immediatelly after it has been scheduled or wait for rate to expire
- *  
+ *
  * Returns the task ID or -1 if the insertion failed.
  */
 int sched_put_task(void (*taskFunction)(void), unsigned long rate, bool run_immediately);
@@ -67,7 +67,7 @@ int sched_get_taskID(void (*taskFunction)(void));
  * Reschedule a task to be run at a specified time.
  *   id   - task id to be rescheduled
  *   when - time in millis() for the next run of the task
- *   
+ *
  * If the task does not exist this function will fail silently
  */
 void sched_reschedule_taskID(size_t id, unsigned long when);
